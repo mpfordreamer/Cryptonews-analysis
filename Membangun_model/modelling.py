@@ -14,18 +14,14 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import MultinomialNB
 import lightgbm as lgb
 
-# -----------------------------
 # Load Data
-# -----------------------------
 current_dir = os.path.dirname(os.path.abspath(__file__))
 file_path = os.path.join(current_dir, 'cryptonews_preprocessing', 'preprocessed_cryptonews.csv')
 
 # Read CSV file
 df = pd.read_csv(file_path)
 
-# -----------------------------
 # Prepare Features and Target
-# -----------------------------
 X_text = df['text_clean']              # Cleaned text data
 y = df['sentiment_encoded']            # Encoded labels: 0=Negative, 1=Neutral, 2=Positive
 
@@ -42,9 +38,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 smote = SMOTE(random_state=42)
 X_resampled, y_resampled = smote.fit_resample(X_train, y_train)
 
-# -----------------------------
 # Define and Train Models
-# -----------------------------
 print("\n[INFO] Training models with SMOTE...\n")
 
 # Initialize models
@@ -77,9 +71,7 @@ results_df = pd.DataFrame(results).sort_values(by='F1 Score', ascending=False)
 print("\n[RESULTS] Model Comparison (F1 Score):")
 print(results_df)
 
-# -----------------------------
 # Evaluate Best Model
-# -----------------------------
 best_model_name = results_df.iloc[0]['Model']
 best_model = models[best_model_name]
 y_pred = best_model.predict(X_test)
