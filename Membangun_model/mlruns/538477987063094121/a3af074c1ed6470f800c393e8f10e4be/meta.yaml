@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/dewam/Dokumen/Beasiswa%20Lomba%20and%20Goals/Laskar%20AI/Project/Membangun%20Sistem%20Machine%20Learning/submission/SMSML_demahesta/Membangun_model/mlruns/538477987063094121/a3af074c1ed6470f800c393e8f10e4be/artifacts
+end_time: 1748963788894
+entry_point_name: ''
+experiment_id: '538477987063094121'
+lifecycle_stage: active
+run_id: a3af074c1ed6470f800c393e8f10e4be
+run_name: optimization
+run_uuid: a3af074c1ed6470f800c393e8f10e4be
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1748963154553
+status: 3
+tags: []
+user_id: dewam

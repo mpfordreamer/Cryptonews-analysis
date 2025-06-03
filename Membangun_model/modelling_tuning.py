@@ -1,14 +1,24 @@
+import os
+import time
 import pandas as pd
 import numpy as np
-import os
 import mlflow
 import optuna
 from sklearn.feature_extraction.text import TfidfVectorizer
+from imblearn.over_sampling import SMOTE
 from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.metrics import f1_score, classification_report, accuracy_score, confusion_matrix
+from sklearn.metrics import (
+    f1_score,
+    classification_report,
+    accuracy_score,
+    confusion_matrix,
+    roc_auc_score,
+    precision_score,
+)
 import lightgbm as lgb
-import dagshub
-dagshub.init(repo_owner='mpfordreamer', repo_name='Cryptonews-analysis', mlflow=True)
+import matplotlib.pyplot as plt
+import seaborn as sns
+from mlflow.utils.file_utils import TempDir 
 
 # MLflow setup
 EXPERIMENT_NAME = "crypto_sentiment_lgbm"
@@ -26,7 +36,14 @@ def load_and_preprocess_data():
     vectorizer = TfidfVectorizer(max_features=2000)
     X = vectorizer.fit_transform(X_text)
     
-    return train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
+    # Split data
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
+
+    # Apply SMOTE only on training data
+    smote = SMOTE(random_state=42)
+    X_resampled, y_resampled = smote.fit_resample(X_train, y_train)
+
+    return X_resampled, X_test, y_resampled, y_test
 
 def objective(trial):
     """Optuna objective function with MLflow tracking"""
@@ -59,35 +76,72 @@ def objective(trial):
 
 def train_best_model(study, X_train, X_test, y_train, y_test):
     """Train and evaluate the best model"""
+    
+    # Create models directory if not exists
+    os.makedirs("models", exist_ok=True)
+    
     with mlflow.start_run(run_name="best_model"):
         # Log best parameters
         mlflow.log_params(study.best_params)
         
+        # Start timing for training duration
+        start_time = time.time()
+        
         # Train model with best parameters
-        best_model = lgb.LGBMClassifier(**study.best_params, random_state=42)
+        best_model = lgb.LGBMClassifier(**study.best_params, random_state=42, verbose=-1, probability=True)
         best_model.fit(X_train, y_train)
+        
+        # Calculate training time
+        training_time = time.time() - start_time
+        mlflow.log_metric("training_time", training_time)
         
         # Evaluate
         y_pred = best_model.predict(X_test)
         test_f1 = f1_score(y_test, y_pred, average='weighted')
-        accuracy = accuracy_score(y_test, y_test)
+        accuracy = accuracy_score(y_test, y_pred)
+        precision = precision_score(y_test, y_pred, average='weighted')
+        roc_auc = roc_auc_score(y_test, best_model.predict_proba(X_test), multi_class='ovr')
         
         # Log metrics
         mlflow.log_metric("test_f1", test_f1)
         mlflow.log_metric("accuracy", accuracy)
+        mlflow.log_metric("precision", precision)
+        mlflow.log_metric("roc_auc", roc_auc)
         
         # Log model parameters
         mlflow.log_param("model_type", "LGBMClassifier")
         mlflow.log_param("n_features", X_train.shape[1])
         mlflow.log_param("n_samples", X_train.shape[0])
         
-        # Save and log model in MLflow format
+        # Log to MLflow tracking server
         mlflow.lightgbm.log_model(best_model, "model")
+
+        # Also save locally
+        mlflow.lightgbm.save_model(best_model, "models/mlflow_model")
         
         # Save and log model in native LightGBM format
-        model_txt_path = 'best_lgbm_model_native.txt'  # Native format file
+        model_txt_path = 'models/best_lgbm_native.txt'  # Native format file
         best_model.booster_.save_model(model_txt_path)
-        mlflow.log_artifact(model_txt_path, artifact_path="native_lgbm_format")  # Log to subfolder
+        mlflow.log_artifact(model_txt_path, artifact_path="best_lgbm_native")  # Log as artifact
+        
+        # Save confusion matrix as an image
+        cm = confusion_matrix(y_test, y_pred)
+        fig, ax = plt.subplots(figsize=(8, 6))
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax)
+        ax.set_xlabel('Predicted Labels')
+        ax.set_ylabel('True Labels')
+        ax.set_title('Confusion Matrix')
+        plt.tight_layout()
+        cm_image_path = 'models/confusion_matrix.png'
+        plt.savefig(cm_image_path)
+        mlflow.log_artifact(cm_image_path, artifact_path="confusion_matrix")
+        
+        # Save classification report as text file
+        report = classification_report(y_test, y_pred, output_dict=True)
+        report_path = 'models/classification_report.txt'
+        with open(report_path, 'w') as f:
+            f.write(classification_report(y_test, y_pred))
+        mlflow.log_artifact(report_path, artifact_path="classification_report")
         
         return best_model, test_f1, accuracy
 
@@ -113,6 +167,7 @@ if __name__ == "__main__":
         })
     
     # Train and evaluate best model
+    print("Label after SMOTE:", pd.Series(y_train).value_counts())
     print("\n[INFO] Training best model...")
     best_model, test_f1, accuracy = train_best_model(study, X_train, X_test, y_train, y_test)
     
