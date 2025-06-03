@@ -70,7 +70,7 @@ def train_best_model(study, X_train, X_test, y_train, y_test):
         # Evaluate
         y_pred = best_model.predict(X_test)
         test_f1 = f1_score(y_test, y_pred, average='weighted')
-        accuracy = accuracy_score(y_test, y_pred)
+        accuracy = accuracy_score(y_test, y_test)
         
         # Log metrics
         mlflow.log_metric("test_f1", test_f1)
@@ -81,11 +81,13 @@ def train_best_model(study, X_train, X_test, y_train, y_test):
         mlflow.log_param("n_features", X_train.shape[1])
         mlflow.log_param("n_samples", X_train.shape[0])
         
-        # Log model
+        # Save and log model in MLflow format
         mlflow.lightgbm.log_model(best_model, "model")
         
-        # Save locally
-        best_model.booster_.save_model('best_lgbm_model.txt')
+        # Save and log model in native LightGBM format
+        model_txt_path = 'best_lgbm_model_native.txt'  # Native format file
+        best_model.booster_.save_model(model_txt_path)
+        mlflow.log_artifact(model_txt_path, artifact_path="native_lgbm_format")  # Log to subfolder
         
         return best_model, test_f1, accuracy
 
