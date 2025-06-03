@@ -22,9 +22,9 @@ file_path = os.path.join(current_dir, 'cryptonews_preprocessing', 'preprocessed_
 df = pd.read_csv(file_path)
 
 # Prepare Features and Target
-X_text = df['text_clean']              # Cleaned text data
-y = df['sentiment_encoded']            # Encoded labels: 0=Negative, 1=Neutral, 2=Positive
-
+X_text = df['text_clean']              
+y = df['sentiment_encoded']   
+         
 # Vectorize text using TF-IDF
 vectorizer = TfidfVectorizer(max_features=2000)
 X = vectorizer.fit_transform(X_text).toarray()  
