@@ -12,7 +12,7 @@ flavors:
     loader_module: mlflow.lightgbm
     python_version: 3.12.3
 mlflow_version: 2.22.0
-model_size_bytes: 4325289
-model_uuid: 9d5cab5d024d4f0885b4a1446cbd75cb
+model_size_bytes: 869587
+model_uuid: d14456f764a44dd68b8df9074fdc339e
 prompts: null
-utc_time_created: '2025-06-03 15:37:24.260437'
+utc_time_created: '2025-06-04 00:52:29.172760'

@@ -18,10 +18,13 @@ from sklearn.metrics import (
 import lightgbm as lgb
 import matplotlib.pyplot as plt
 import seaborn as sns
+import dagshub
+from imblearn.pipeline import Pipeline
 from mlflow.utils.file_utils import TempDir 
 
 # MLflow setup
-EXPERIMENT_NAME = "crypto_sentiment_lgbm"
+dagshub.init(repo_owner='mpfordreamer', repo_name='Cryptonews-analysis', mlflow=True)
+EXPERIMENT_NAME = "crypto_sentiment_modeling"
 mlflow.set_experiment(EXPERIMENT_NAME)
 
 def load_and_preprocess_data():
@@ -38,6 +41,10 @@ def load_and_preprocess_data():
     
     # Split data
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
+
+    # Cross-validation
+    global X_train_original, y_train_original
+    X_train_original, y_train_original = X_train, y_train
 
     # Apply SMOTE only on training data
     smote = SMOTE(random_state=42)
@@ -65,8 +72,19 @@ def objective(trial):
         mlflow.log_params(params)
         
         # Train and evaluate model
-        model = lgb.LGBMClassifier(**params)
-        scores = cross_val_score(model, X_train, y_train, cv=3, scoring='f1_weighted', n_jobs=-1)
+        pipeline = Pipeline([
+            ('smote', SMOTE(random_state=42)),
+            ('lgbm', lgb.LGBMClassifier(**params))
+        ])
+
+        scores = cross_val_score(
+            pipeline,
+            X_train_original,  
+            y_train_original,  
+            cv=3,
+            scoring='f1_weighted',
+            n_jobs=-1
+)
         mean_f1 = np.mean(scores)
         
         # Log metrics
@@ -167,6 +185,7 @@ if __name__ == "__main__":
         })
     
     # Train and evaluate best model
+    print("Label before SMOTE:", pd.Series(y_train_original).value_counts())
     print("Label after SMOTE:", pd.Series(y_train).value_counts())
     print("\n[INFO] Training best model...")
     best_model, test_f1, accuracy = train_best_model(study, X_train, X_test, y_train, y_test)
