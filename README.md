@@ -1,153 +1,181 @@
-# Crypto News Sentiment Analysis
+# 📈 Analisis Sentimen Berita Kripto
 
-## Simple Overview  
-A reproducible end-to-end pipeline that ingests, preprocesses, and models crypto news articles for sentiment classification, with model tracking via MLflow and production serving instrumented by Prometheus.
+**Sebuah pipeline MLOps *end-to-end* untuk klasifikasi sentimen pada berita kripto, dilengkapi dengan *experiment tracking* menggunakan MLflow dan *monitoring* produksi dengan Prometheus & Grafana.**
 
----
+![Python Version](https://img.shields.io/badge/Python-3.8+-blue.svg)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
+![GitHub Actions CI/CD](https://img.shields.io/github/actions/workflow/status/your-username/crypto-news-sentiment/main.yml?branch=main&logo=github&label=CI/CD)
 
-## Description  
-This project uses the [Crypto News +](https://www.kaggle.com/datasets/oliviervha/crypto-news) dataset (Oct 2021–Dec 2023), which includes titles, full text, source, subject, and TextBlob sentiment scores. We parse and clean the text, perform EDA, vectorize with TF-IDF, and train a binary sentiment classifier (Logistic Regression). Experiments and metrics (accuracy, precision, recall, ROC AUC, F1) are tracked in MLflow. A CI/CD workflow via GitHub Actions (MLflow Project + `conda.yaml`) automates retraining, and a Flask/FastAPI service exposes a `/predict` endpoint with Prometheus metrics scraped by Grafana dashboards and alerting rules.
-
----
-
-## Getting Started
-
-### Dependencies  
-- **OS:** Windows 10 / macOS Catalina+ / Ubuntu 20.04+  
-- **Python:** ≥ 3.8  
-- **Libraries:**  
-  - pandas, numpy  
-  - scikit-learn  
-  - nltk (or spaCy)  
-  - mlflow  
-  - flask or fastapi  
-  - prometheus_client  
-  - uvicorn (for FastAPI)  
-  - requests (for inference script)
-
-### Installing  
-1. **Clone repository**  
-   git clone https://github.com/your-username/crypto-news-sentiment.git
-   cd crypto-news-sentiment
-
-2. **Create & activate virtual environment**
-
-   ```bash
-   python -m venv venv
-   source venv/bin/activate    # macOS/Linux
-   venv\Scripts\activate       # Windows
-   ```
-3. **Install requirements**
-
-   ```bash
-   pip install -r requirements.txt
-   ```
+</div>
 
 ---
 
-## Executing Program
+## 📝 Deskripsi
 
-1. **Preprocess data**
-
-   ```bash
-   python preprocessing/automate_crypto_preprocessing.py \
-     --input data/crypto_news_raw.csv \
-     --output data/crypto_news_clean.csv \
-     --vectorizer artifacts/vectorizer.pkl
-   ```
-2. **Train & track model**
-
-   ```bash
-   cd Membangun_model
-   mlflow run . -P data_path=../data/crypto_news_clean.csv
-   ```
-3. **Run inference service**
-
-   ```bash
-   # Start API (Flask)
-   flask run --port 5000
-
-   # or FastAPI
-   uvicorn app:app --reload --port 8000
-   ```
-4. **Test prediction**
-
-   ```bash
-   python inference.py --text "Bitcoin surges after ETF approval"
-   ```
+Proyek ini membangun sebuah pipeline lengkap untuk mengolah data berita kripto, mulai dari ingestion, preprocessing, hingga deployment model sebagai layanan API. Menggunakan dataset [Crypto News +](https://www.kaggle.com/datasets/oliviervha/crypto-news), kami melatih model klasifikasi sentimen (Positif/Negatif) dan mengemasnya dalam sebuah alur kerja MLOps yang siap produksi.
 
 ---
 
-## Model Performance
+## ✨ Fitur Utama
 
-*(as logged in MLflow)*
-
-* **Accuracy:** 0.829
-* **Precision:** 0.846
-* **Recall:** 0.829
-* **ROC AUC:** 0.905
-* **Test F1:** 0.828
-* **Training Time:** 83.17 s
+-   **🧹 Preprocessing Data**: Membersihkan dan mempersiapkan teks berita untuk pemodelan.
+-   **🤖 Pelatihan Model**: Menggunakan TF-IDF dan Logistic Regression untuk klasifikasi sentimen.
+-   **📊 Experiment Tracking**: Mencatat semua parameter, metrik, dan artefak model ke **MLflow**.
+-   **🚀 Deployment API**: Menyajikan model melalui endpoint `/predict` menggunakan **Flask/FastAPI**.
+-   **⚙️ Otomatisasi CI/CD**: Alur kerja **GitHub Actions** untuk otomatisasi *retraining* dan validasi model.
+-   **📡 Monitoring Produksi**: Metrik performa API diekspos untuk **Prometheus** dan divisualisasikan di **Grafana**.
 
 ---
 
-## Help
+## 🛠️ Tumpukan Teknologi (Tech Stack)
 
-* **NLTK data missing:**
-
-  ```python
-  import nltk
-  nltk.download('punkt')
-  nltk.download('stopwords')
-  ```
-* **MLflow UI not showing runs:**
-
-  ```bash
-  mlflow ui --backend-store-uri ./mlruns
-  ```
-* **View API options:**
-
-  ```bash
-  python app.py --help
-  ```
+-   **Data & Pemodelan**: `pandas`, `scikit-learn`, `nltk`
+-   **MLOps**: `MLflow`
+-   **Serving**: `Flask`, `FastAPI`, `Uvicorn`
+-   **Monitoring**: `Prometheus`, `Grafana`
+-   **Otomatisasi**: `GitHub Actions`
 
 ---
 
-## Authors
+## 🚀 Memulai
 
-* Dominique Pizzie – [d.pizzie@example.com](mailto:d.pizzie@example.com)
-* @DomPizzie
+### Kebutuhan Sistem
+
+-   **OS**: Windows 10 / macOS Catalina+ / Ubuntu 20.04+
+-   **Python**: Versi `3.8` atau lebih tinggi
+
+### Instalasi
+
+1.  **Clone Repositori**
+    ```bash
+    git clone https://github.com/your-username/crypto-news-sentiment.git
+    cd crypto-news-sentiment
+    ```
+
+2.  **Buat dan Aktifkan Virtual Environment**
+    ```bash
+    # Buat environment
+    python -m venv venv
+
+    # Aktifkan di macOS/Linux
+    source venv/bin/activate
+
+    # Aktifkan di Windows
+    venv\Scripts\activate
+    ```
+
+3.  **Instal Dependensi**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 ---
 
-## Version History
+## ⚙️ Cara Menjalankan
 
-* **0.2**
+Ikuti langkah-langkah berikut secara berurutan:
 
-  * Added CI/CD with GitHub Actions
-  * Integrated Prometheus/Grafana monitoring & alerting
-* **0.1**
+1.  **Jalankan Preprocessing Data**
+    Perintah ini akan membersihkan data mentah dan menyimpan hasilnya beserta *vectorizer*.
+    ```bash
+    python preprocessing/automate_crypto_preprocessing.py \
+      --input data/crypto_news_raw.csv \
+      --output data/crypto_news_clean.csv \
+      --vectorizer artifacts/vectorizer.pkl
+    ```
 
-  * Initial release: preprocessing, modelling, serving
+2.  **Latih dan Lacak Model dengan MLflow**
+    Masuk ke direktori model dan jalankan pipeline MLflow.
+    ```bash
+    cd Membangun_model
+    mlflow run . -P data_path=../data/crypto_news_clean.csv
+    ```
+    *Untuk melihat hasilnya, jalankan `mlflow ui` di terminal.*
+
+3.  **Jalankan Layanan API**
+    Pilih salah satu framework untuk menjalankan server.
+
+    ```bash
+    # Opsi 1: Menggunakan Flask
+    flask run --port 5000
+
+    # Opsi 2: Menggunakan FastAPI
+    uvicorn app:app --reload --port 8000
+    ```
+
+4.  **Uji Coba Endpoint Prediksi**
+    Kirim permintaan ke API menggunakan skrip inferensi.
+    ```bash
+    python inference.py --text "Bitcoin surges after ETF approval"
+    ```
 
 ---
 
-## License
+## 📊 Performa Model
 
-This project is licensed under the MIT License – see the [LICENSE.md](LICENSE.md) file for details.
+Metrik berikut dicatat pada *run* terbaik di MLflow.
+
+| Metrik          | Skor    |
+| --------------- | ------- |
+| **Accuracy**    | `0.829` |
+| **Precision**   | `0.846` |
+| **Recall**      | `0.829` |
+| **ROC AUC**     | `0.905` |
+| **F1 Score**    | `0.828` |
+| **Waktu Latih** | `83.17s`|
 
 ---
 
-## Acknowledgments
+## 🆘 Bantuan (Troubleshooting)
 
-* [Crypto News + dataset](https://www.kaggle.com/datasets/oliviervha/crypto-news)
-* TextBlob examples for sentiment analysis
-* Mermaid flowchart snippets by PurpleBooth
-* MLflow docs by dbader
-* Grafana patterns by zenorocha
-* Prometheus exporter guides by fvcproductions
+-   **Error `NLTK data missing`:**
+    Jalankan perintah Python berikut untuk mengunduh data yang dibutuhkan.
+    ```python
+    import nltk
+    nltk.download('punkt')
+    nltk.download('stopwords')
+    ```
 
-```
+-   **MLflow UI tidak menampilkan *runs*:**
+    Pastikan Anda menjalankan UI dari direktori root proyek.
+    ```bash
+    mlflow ui --backend-store-uri ./mlruns
+    ```
 
-Let me know if you’d like any tweaks!
-```
+-   **Melihat opsi untuk skrip:**
+    Gunakan flag `--help` untuk melihat argumen yang tersedia.
+    ```bash
+    python app.py --help
+    ```
+
+---
+
+## ✍️ Penulis
+
+-   **De Mahesta** – [dewamahesta2711@gmail.com](mailto:dewamahesta2711@gmail.com) | 
+
+---
+
+## 📜 Riwayat Versi
+
+-   **v0.2**
+    -   Menambahkan CI/CD dengan GitHub Actions.
+    -   Mengintegrasikan monitoring & alerting dengan Prometheus/Grafana.
+-   **v0.1**
+    -   Rilis awal: preprocessing, pemodelan, dan serving API.
+
+---
+
+## 📄 Lisensi
+
+Proyek ini dilisensikan di bawah Lisensi MIT. Lihat file [LICENSE.md](LICENSE.md) untuk detailnya.
+
+---
+
+## 🙏 Ucapan Terima Kasih
+
+-   Dataset [Crypto News +](https://www.kaggle.com/datasets/oliviervha/crypto-news)
+-   Contoh penggunaan [TextBlob](https://textblob.readthedocs.io/en/dev/)
+-   Snippets alur kerja oleh [PurpleBooth](https://github.com/PurpleBooth)
+-   Dokumentasi MLflow oleh [dbader](https://github.com/dbader)
+-   Pola desain Grafana oleh [zenorocha](https://github.com/zenorocha)
