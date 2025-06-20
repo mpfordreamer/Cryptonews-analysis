@@ -1,4 +1,5 @@
 # 📈 Analisis Sentimen Berita Kripto
+![ChatGPT Image 18 Jun 2025, 14 43 47](https://github.com/user-attachments/assets/ddee870e-2152-4a70-a0d9-d72f71b9ec0b)
 
 **Sebuah pipeline MLOps *end-to-end* untuk klasifikasi sentimen pada berita kripto, dilengkapi dengan *experiment tracking* menggunakan MLflow dan *monitoring* produksi dengan Prometheus & Grafana.**
 
