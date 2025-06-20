@@ -4,7 +4,6 @@
 
 ![Python Version](https://img.shields.io/badge/Python-3.8+-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
-![GitHub Actions CI/CD](https://img.shields.io/github/actions/workflow/status/your-username/crypto-news-sentiment/main.yml?branch=main&logo=github&label=CI/CD)
 
 </div>
 
