@@ -150,6 +150,10 @@ The following metrics were logged on the best run in MLflow.
 
 ---
 
+## Deployment
+
+Live demo: [https://cryptonewsdashboard.streamlit.app/](https://cryptonewsdashboard.streamlit.app/)
+
 ## ✍️ Author
 
 -   **De Mahesta** – [dewamahesta2711@gmail.com](mailto:dewamahesta2711@gmail.com)
